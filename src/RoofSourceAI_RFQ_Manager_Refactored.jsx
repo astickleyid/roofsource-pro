@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  PackageSearch, MapPin, Menu, X, BarChart3, Box, Users, BrainCircuit, Check, LogOut, Grid3x3
+  PackageSearch, MapPin, Menu, X, BarChart3, Box, Users, BrainCircuit, Check, LogOut, Grid3x3, Sparkles
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectProvider, useProject } from './contexts/ProjectContext';
@@ -9,6 +9,7 @@ import { ScopeEditor } from './components/features/ScopeEditor';
 import { VendorManager } from './components/features/VendorManager';
 import { Dashboard } from './components/features/Dashboard';
 import { PricingWorkbench } from './components/features/PricingWorkbench';
+import { AIAssistant } from './components/features/AIAssistant';
 import { parseQuoteEmail } from './services/openaiService';
 
 const MATERIAL_CATALOG = [
@@ -95,6 +96,7 @@ function RoofSourceProContent() {
       <nav className="flex-1 p-4 space-y-1">
         {[
           { id: 'dashboard', icon: BarChart3, label: 'Market Dashboard' },
+          { id: 'ai-assistant', icon: Sparkles, label: 'AI Assistant' },
           { id: 'scope', icon: Box, label: 'Scope & BOM' },
           { id: 'vendors', icon: Users, label: 'Vendor Manager' },
           { id: 'pricing', icon: Grid3x3, label: 'Pricing Workbench' },
@@ -236,6 +238,7 @@ function RoofSourceProContent() {
             </button>
             <h1 className="font-bold text-base md:text-lg capitalize text-gray-800 truncate">
               {activeView === 'dashboard' ? 'Sourcing Dashboard' : 
+               activeView === 'ai-assistant' ? 'AI Assistant' :
                activeView === 'scope' ? 'Scope Editor' : 
                activeView === 'pricing' ? 'Pricing Workbench' : 'Vendor Manager'}
             </h1>
@@ -252,7 +255,8 @@ function RoofSourceProContent() {
         </header>
 
         <div className="flex-1 p-4 md:p-6 overflow-x-hidden">
-          <div className="max-w-7xl mx-auto">{activeView === 'dashboard' && (
+          <div className="max-w-7xl mx-auto">
+          {activeView === 'dashboard' && (
             <Dashboard 
               quotes={quotes}
               vendors={vendors}
@@ -261,6 +265,17 @@ function RoofSourceProContent() {
               onEditScope={() => setActiveView('scope')}
               onInspectVendor={setInspectingVendorId}
               onSelectVendor={setSelectedVendorId}
+            />
+          )}
+          {activeView === 'ai-assistant' && (
+            <AIAssistant 
+              projectInfo={projectInfo}
+              onAddMaterials={(materials) => {
+                materials.forEach(m => addScopeItem(m.name));
+              }}
+              onAddVendors={(vendors) => {
+                vendors.forEach(v => addVendor());
+              }}
             />
           )}
           {activeView === 'scope' && (
