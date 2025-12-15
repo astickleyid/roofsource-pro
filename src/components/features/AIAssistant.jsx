@@ -10,25 +10,53 @@ export const AIAssistant = ({ projectInfo, onAddMaterials, onAddVendors }) => {
 
   // Price Finder State
   const [materialSearch, setMaterialSearch] = useState('');
+  const [skuSearch, setSkuSearch] = useState('');
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [priceResults, setPriceResults] = useState(null);
 
   // Vendor Finder State
   const [vendorLocation, setVendorLocation] = useState(projectInfo?.loc || '');
+  const [vendorMaterials, setVendorMaterials] = useState('');
   const [vendorResults, setVendorResults] = useState(null);
 
   // Smart Quote Builder State
   const [projectDescription, setProjectDescription] = useState('');
   const [quoteResults, setQuoteResults] = useState(null);
 
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handlePriceSearch = async () => {
-    if (!materialSearch.trim()) return;
+    if (!materialSearch.trim() && !skuSearch.trim() && !imageFile) return;
     
     setLoading(true);
     setPriceResults(null);
     
     try {
+      let searchQuery = materialSearch;
+      
+      // If SKU is provided, add it to search
+      if (skuSearch.trim()) {
+        searchQuery += ` (SKU: ${skuSearch})`;
+      }
+      
+      // If image is provided, add context
+      if (imageFile) {
+        searchQuery += ' [Image of product provided]';
+      }
+      
       const result = await findMaterialPrices(
-        materialSearch,
+        searchQuery || 'Product from image',
         projectInfo?.loc || 'US',
         1
       );
@@ -47,7 +75,11 @@ export const AIAssistant = ({ projectInfo, onAddMaterials, onAddVendors }) => {
     setVendorResults(null);
     
     try {
-      const result = await findVendorsNearLocation(vendorLocation, []);
+      const materialsArray = vendorMaterials.trim() 
+        ? vendorMaterials.split(',').map(m => m.trim())
+        : [];
+      
+      const result = await findVendorsNearLocation(vendorLocation, materialsArray);
       setVendorResults(result);
     } catch (error) {
       console.error('Vendor search error:', error);
@@ -158,9 +190,56 @@ export const AIAssistant = ({ projectInfo, onAddMaterials, onAddVendors }) => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  SKU / Model Number (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={skuSearch}
+                  onChange={(e) => setSkuSearch(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handlePriceSearch()}
+                  placeholder="e.g., OC-DUR-DRIFT or 1234567"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Product Photo (Optional)
+                </label>
+                <div className="space-y-2">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  {imagePreview && (
+                    <div className="relative inline-block">
+                      <img 
+                        src={imagePreview} 
+                        alt="Product preview" 
+                        className="w-32 h-32 object-cover rounded-lg border-2 border-gray-300"
+                      />
+                      <button
+                        onClick={() => {
+                          setImageFile(null);
+                          setImagePreview(null);
+                        }}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <Button
                 onClick={handlePriceSearch}
-                disabled={loading || !materialSearch.trim()}
+                disabled={loading || (!materialSearch.trim() && !skuSearch.trim() && !imageFile)}
                 icon={loading ? Loader2 : Search}
                 className={loading ? 'animate-spin' : ''}
               >
@@ -236,6 +315,24 @@ export const AIAssistant = ({ projectInfo, onAddMaterials, onAddVendors }) => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Specific Materials (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={vendorMaterials}
+                  onChange={(e) => setVendorMaterials(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleVendorSearch()}
+                  placeholder="e.g., shingles, underlayment, drip edge (comma separated)"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Leave blank for general roofing suppliers, or specify materials to find specialized vendors
+                </p>
+              </div>
+              
               <Button
                 onClick={handleVendorSearch}
                 disabled={loading || !vendorLocation.trim()}
