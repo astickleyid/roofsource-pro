@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { LogIn, UserPlus } from 'lucide-react';
-import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { useAuth } from '../contexts/AuthContext';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { useAuth } from '../../contexts/AuthContext';
 
 export const LoginPage = () => {
   const [isSignup, setIsSignup] = useState(false);
