@@ -18,17 +18,17 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState({ email: 'demo@example.com', uid: 'demo-user' }); // Mock user for development
+  const [loading, setLoading] = useState(false); // No loading needed for mock
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
+  // Comment out Firebase for now
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     setUser(user);
+  //     setLoading(false);
+  //   });
+  //   return unsubscribe;
+  // }, []);
 
   const login = async (email, password) => {
     try {
