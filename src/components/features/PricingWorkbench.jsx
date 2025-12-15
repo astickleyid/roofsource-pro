@@ -142,13 +142,13 @@ export const PricingWorkbench = ({ quotes, scope, onUpdatePrice, materialCatalog
   };
 
   return (
-    <div className="max-w-[95vw] mx-auto space-y-6">
+    <div className="w-full space-y-6">
       
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Pricing Workbench</h2>
-          <p className="text-gray-600">Advanced pricing analysis with variance detection</p>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Pricing Workbench</h2>
+          <p className="text-sm md:text-base text-gray-600">Advanced pricing analysis with variance detection</p>
         </div>
       </div>
 

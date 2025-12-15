@@ -16,19 +16,19 @@ export const Dashboard = ({ quotes, vendors, scope, projectInfo, onEditScope, on
     window.location.href = `mailto:vendor@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="w-full space-y-6 md:space-y-8">
       
-      <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-6 text-white shadow-lg flex justify-between items-center">
+      <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-xl p-4 md:p-6 text-white shadow-lg flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold mb-1">Market Analysis</h2>
-          <p className="text-slate-400 text-sm">Comparing {vendors.length} vendors against {scope.length} scope items.</p>
+          <h2 className="text-xl md:text-2xl font-bold mb-1">Market Analysis</h2>
+          <p className="text-slate-400 text-xs md:text-sm">Comparing {vendors.length} vendors against {scope.length} scope items.</p>
         </div>
-        <Button variant="secondary" size="sm" onClick={onEditScope} icon={Edit2}>
+        <Button variant="secondary" size="sm" onClick={onEditScope} icon={Edit2} className="w-full sm:w-auto">
           Edit Scope
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
         {quotes.sort((a,b) => a.total - b.total).map((vendor, index) => {
           const isWinner = index === 0 && vendor.completeness === 100;
           return (

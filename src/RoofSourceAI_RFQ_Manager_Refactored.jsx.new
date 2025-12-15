@@ -1,0 +1,24 @@
+import React, { useState } from 'react';
+import { 
+  PackageSearch, MapPin, Menu, X, BarChart3, Box, Users, BrainCircuit, Check, LogOut, Grid3x3
+} from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useProject } from './contexts/ProjectContext';
+import { Button } from './components/ui/Button';
+import { ScopeEditor } from './components/features/ScopeEditor';
+import { VendorManager } from './components/features/VendorManager';
+import { Dashboard } from './components/features/Dashboard';
+import { PricingWorkbench } from './components/features/PricingWorkbench';
+import { parseQuoteEmail } from './services/openaiService';
+import React, { useState } from 'react';
+import { 
+  PackageSearch, MapPin, Menu, X, BarChart3, Box, Users, BrainCircuit, Check, LogOut, Grid3x3
+} from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ProjectProvider, useProject } from './contexts/ProjectContext';
+import { useAuth } from './contexts/AuthContext';
+import { Button } from './components/ui/Button';
+import { ScopeEditor } from './components/features/ScopeEditor';
+import { VendorManager } from './components/features/VendorManager';
+import { Dashboard } from './components/features/Dashboard';
+import { PricingWorkbench } from './components/features/PricingWorkbench';

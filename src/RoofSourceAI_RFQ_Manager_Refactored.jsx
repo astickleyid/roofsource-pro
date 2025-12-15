@@ -4,7 +4,6 @@ import {
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectProvider, useProject } from './contexts/ProjectContext';
-import { useAuth } from './contexts/AuthContext';
 import { Button } from './components/ui/Button';
 import { ScopeEditor } from './components/features/ScopeEditor';
 import { VendorManager } from './components/features/VendorManager';
@@ -25,7 +24,9 @@ const MATERIAL_CATALOG = [
 function RoofSourceProContent() {
   const { id: projectId } = useParams();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  // Mock user for development
+  const user = { email: 'demo@example.com' };
+  const logout = () => navigate('/');
   const [activeView, setActiveView] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [selectedVendorId, setSelectedVendorId] = useState(null);
@@ -129,23 +130,23 @@ function RoofSourceProContent() {
     const vendorQuote = quotes.find(q => q.id === inspectingVendorId);
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4 overflow-y-auto">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] my-auto flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
           
-          <div className="p-6 border-b border-gray-200 bg-gray-50 flex justify-between items-start">
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h2 className="text-2xl font-bold text-gray-900">{vendorQuote.name}</h2>
-                <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${vendorQuote.isManual ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
+          <div className="p-4 sm:p-6 border-b border-gray-200 bg-gray-50 flex flex-col sm:flex-row justify-between items-start gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 sm:gap-3 mb-1 flex-wrap">
+                <h2 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">{vendorQuote.name}</h2>
+                <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide whitespace-nowrap ${vendorQuote.isManual ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
                   {vendorQuote.type}
                 </span>
               </div>
-              <p className="text-gray-500 text-sm">Reviewing line-item pricing for current scope.</p>
+              <p className="text-gray-500 text-xs sm:text-sm">Reviewing line-item pricing for current scope.</p>
             </div>
-            <button onClick={() => setInspectingVendorId(null)} className="p-2 hover:bg-gray-200 rounded-full"><X size={24}/></button>
+            <button onClick={() => setInspectingVendorId(null)} className="p-2 hover:bg-gray-200 rounded-full shrink-0 self-start"><X size={24}/></button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-auto p-4 sm:p-6">
             
             {vendorQuote.isManual && (
               <div className="mb-8 bg-blue-50 border border-blue-100 rounded-lg p-4">
@@ -222,18 +223,18 @@ function RoofSourceProContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-gray-900 flex">
+    <div className="min-h-screen bg-slate-50 font-sans text-gray-900">
       {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}
       
       {renderSidebar()}
 
-      <main className={`flex-1 flex flex-col min-h-screen transition-all ${sidebarOpen ? 'md:ml-0' : 'md:ml-0'}`}>
-        <header className="bg-white border-b border-gray-200 h-16 px-6 flex items-center justify-between sticky top-0 z-20">
+      <main className="md:ml-64 flex flex-col min-h-screen">
+        <header className="bg-white border-b border-gray-200 h-16 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-4">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-gray-100 rounded-lg text-gray-500 md:hidden">
               <Menu size={20} />
             </button>
-            <h1 className="font-bold text-lg capitalize text-gray-800">
+            <h1 className="font-bold text-base md:text-lg capitalize text-gray-800 truncate">
               {activeView === 'dashboard' ? 'Sourcing Dashboard' : 
                activeView === 'scope' ? 'Scope Editor' : 
                activeView === 'pricing' ? 'Pricing Workbench' : 'Vendor Manager'}
@@ -241,15 +242,17 @@ function RoofSourceProContent() {
           </div>
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <div className="text-xs font-bold text-gray-900">John Doe</div>
+              <div className="text-xs font-bold text-gray-900">{user?.email || 'Demo User'}</div>
               <div className="text-xs text-gray-500">Procurement Manager</div>
             </div>
-            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs">JD</div>
+            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-xs">
+              {user?.email?.[0]?.toUpperCase() || 'D'}
+            </div>
           </div>
         </header>
 
-        <div className="flex-1 p-6 overflow-y-auto">
-          {activeView === 'dashboard' && (
+        <div className="flex-1 p-4 md:p-6 overflow-x-hidden">
+          <div className="max-w-7xl mx-auto">{activeView === 'dashboard' && (
             <Dashboard 
               quotes={quotes}
               vendors={vendors}
@@ -284,6 +287,7 @@ function RoofSourceProContent() {
               materialCatalog={MATERIAL_CATALOG}
             />
           )}
+          </div>
         </div>
 
         {renderInspectionModal()}
