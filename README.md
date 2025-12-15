@@ -1,118 +1,16 @@
-# RoofSource Pro
+# React + Vite
 
-A comprehensive roofing materials sourcing and RFQ management platform.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## 🏗️ Architecture
+Currently, two official plugins are available:
 
-### Phase 0: Component Modularization ✅
-- UI Components: `Button`, `Input`, `Card`
-- Feature Components: `ScopeEditor`, `VendorManager`, `Dashboard`
-- State Management: React Context (`ProjectContext`)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-### Phase I: Backend Infrastructure ✅
-- Firebase Authentication
-- Firestore Database
-- Real-time Data Synchronization
-- Business Logic (Tax, Delivery, Landed Cost Calculations)
+## React Compiler
 
-### Phase II: Business Logic ✅
-- Unit conversion utilities
-- Landed cost calculator (tax + delivery + pallet fees)
-- Enhanced vendor data structure
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-## 📦 Installation
+## Expanding the ESLint configuration
 
-```bash
-npm install
-```
-
-## 🔐 Configuration
-
-1. Copy `.env.example` to `.env`
-2. Add your Firebase credentials
-3. Configure Firebase project with the following collections:
-
-### Firestore Schema
-
-```
-users/{userId}
-  - email: string
-  - createdAt: timestamp
-
-projects/{projectId}
-  - name: string
-  - location: string
-  - userId: string
-  - createdAt: timestamp
-  - updatedAt: timestamp
-  
-  /scope (subcollection)
-    /{itemId}
-      - id: string (material SKU)
-      - qty: number
-      - createdAt: timestamp
-
-vendors/{vendorId}
-  - name: string
-  - type: string
-  - distance: number
-  - driveTime: number
-  - isManual: boolean
-  - taxRate: number (decimal)
-  - deliveryFee: number
-  - palletFee: number
-  - pricing: map<string, number>
-  - userId: string
-  - createdAt: timestamp
-```
-
-## 🚀 Usage
-
-### With Firebase (Production)
-```javascript
-import { AuthProvider } from './contexts/AuthContext';
-import { ProjectProvider } from './contexts/ProjectContext';
-
-// Wrap your app
-<AuthProvider>
-  <ProjectProvider>
-    <App />
-  </ProjectProvider>
-</AuthProvider>
-```
-
-### Without Firebase (Development)
-The current implementation uses local state as a fallback.
-
-## 🛠️ Utilities
-
-### Unit Conversions
-```javascript
-import { convertSquaresToBundles, calculateLandedCost } from './utils/conversions';
-
-const bundles = convertSquaresToBundles(10); // 30 bundles
-```
-
-### Landed Cost Calculation
-```javascript
-const cost = calculateLandedCost(lineItems, taxRate, deliveryFee, palletFee, palletCount);
-// Returns: { subtotal, tax, deliveryFee, palletFees, grandTotal }
-```
-
-## 📋 Next Steps
-
-- **Analytics Dashboard**: Historical price tracking and trends
-- **Mobile App**: React Native version
-- **Bulk Import**: Excel/CSV import for large BOMs
-- **API Integrations**: Direct vendor API connections
-- **Notifications**: Email alerts for price changes
-
-## 🧪 Testing
-
-```bash
-npm test
-```
-
-## 📄 License
-
-ISC
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
