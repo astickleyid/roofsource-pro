@@ -14,55 +14,91 @@ const openai = new OpenAI({
 /**
  * STEP 1: Identify Product from Input
  * Takes photo/SKU/name and uses AI to confirm exact product match
+ * IMPORTANT: This is a SUGGESTION tool, not definitive identification
  */
 export const identifyProduct = async (input) => {
   const { photo, sku, name, description } = input;
   
+  // SKU takes absolute priority - it's the most reliable
+  if (sku && sku.trim()) {
+    // TODO: Check against product database first
+    // For now, return SKU-based result
+    return {
+      success: true,
+      productName: name || `Product ${sku}`,
+      manufacturer: 'Unknown - Please specify',
+      sku: sku.trim(),
+      category: 'Roofing Material',
+      specifications: {
+        unit: 'Each',
+        coverage: 'Unknown',
+        color: 'Unknown'
+      },
+      confidence: 100,
+      alternativeNames: [],
+      confirmationNeeded: true,
+      source: 'SKU Lookup',
+      manualEntry: true
+    };
+  }
+
+  // If only photo, we MUST get more info from user
+  if (photo && !sku && !name) {
+    return {
+      success: false,
+      error: 'Photo alone is not reliable. Please provide product name or SKU.',
+      requiresManualInput: true
+    };
+  }
+
   const hasRealKey = import.meta.env.VITE_OPENAI_API_KEY && 
                      import.meta.env.VITE_OPENAI_API_KEY !== 'mock-key';
 
-  if (!hasRealKey) {
+  if (!hasRealKey || !name) {
     return mockProductIdentification(input);
   }
 
   try {
-    let prompt = `Identify the exact roofing material product from the following information:\n\n`;
-    
-    if (sku) prompt += `SKU/Model: ${sku}\n`;
-    if (name) prompt += `Product Name: ${name}\n`;
-    if (description) prompt += `Description: ${description}\n`;
-    if (photo) prompt += `[Product photo provided]\n`;
-    
-    prompt += `\nReturn JSON with:
+    // Use AI only as a HELPER, not definitive answer
+    let prompt = `Based on this information, suggest the most likely roofing product:
+
+Product Name: ${name}
+${description ? `Description: ${description}` : ''}
+${photo ? 'Note: Product photo provided but should NOT be relied upon for accurate identification' : ''}
+
+Return JSON with your BEST GUESS (user will confirm):
 {
-  "productName": "Full official product name",
-  "manufacturer": "Brand/manufacturer",
-  "sku": "Official SKU or model number",
-  "category": "Product category (e.g., shingles, underlayment)",
+  "productName": "Most likely full product name",
+  "manufacturer": "Best guess at manufacturer",
+  "sku": "Suggested SKU if known, otherwise 'UNKNOWN'",
+  "category": "Product category",
   "specifications": {
     "unit": "Unit of measure",
-    "coverage": "Coverage per unit if applicable",
-    "color": "Color/finish if applicable"
+    "coverage": "Coverage per unit",
+    "color": "Color/finish"
   },
   "confidence": 0-100,
-  "alternativeNames": ["Common alternative names"],
-  "confirmationNeeded": true/false
+  "alternativeNames": ["Possible alternative names"],
+  "confirmationNeeded": true,
+  "warnings": ["Any concerns about identification accuracy"]
 }`;
 
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [
-        { role: 'system', content: 'You are an expert in roofing materials identification. Be precise and thorough.' },
+        { role: 'system', content: 'You are helping identify roofing products. Be honest about uncertainty. When confidence is low, say so.' },
         { role: 'user', content: prompt }
       ],
-      temperature: 0.1,
+      temperature: 0.3,
       response_format: { type: 'json_object' }
     });
 
     const result = JSON.parse(response.choices[0].message.content);
     return {
       success: true,
-      ...result
+      ...result,
+      source: 'AI Suggestion',
+      manualEntry: false
     };
   } catch (error) {
     console.error('Product identification error:', error);

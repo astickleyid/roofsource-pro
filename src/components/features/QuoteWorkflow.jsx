@@ -278,9 +278,44 @@ export const QuoteWorkflow = ({ projectInfo, onQuoteComplete }) => {
 
           {!identifiedProduct ? (
             <div className="space-y-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                <p className="text-sm text-yellow-800">
+                  <strong>⚠️ Important:</strong> Photos alone are NOT reliable for product identification. 
+                  Please provide SKU or product name for accurate results. Photo is helpful but not sufficient.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SKU / Model Number * (Most Reliable)
+                  </label>
+                  <input
+                    type="text"
+                    value={currentMaterial.sku}
+                    onChange={(e) => setCurrentMaterial({ ...currentMaterial, sku: e.target.value })}
+                    placeholder="e.g., OC-DUR-DRIFT"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Product Name * (Required if no SKU)
+                  </label>
+                  <input
+                    type="text"
+                    value={currentMaterial.name}
+                    onChange={(e) => setCurrentMaterial({ ...currentMaterial, name: e.target.value })}
+                    placeholder="e.g., Azteca Concrete Roof Tiles"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Product Photo (Recommended)
+                  Product Photo (Optional - for reference only)
                 </label>
                 <input
                   type="file"
@@ -297,37 +332,22 @@ export const QuoteWorkflow = ({ projectInfo, onQuoteComplete }) => {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    SKU / Model Number
-                  </label>
-                  <input
-                    type="text"
-                    value={currentMaterial.sku}
-                    onChange={(e) => setCurrentMaterial({ ...currentMaterial, sku: e.target.value })}
-                    placeholder="e.g., OC-DUR-DRIFT"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Product Name
-                  </label>
-                  <input
-                    type="text"
-                    value={currentMaterial.name}
-                    onChange={(e) => setCurrentMaterial({ ...currentMaterial, name: e.target.value })}
-                    placeholder="e.g., Duration Shingles"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Manufacturer (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={currentMaterial.manufacturer || ''}
+                  onChange={(e) => setCurrentMaterial({ ...currentMaterial, manufacturer: e.target.value })}
+                  placeholder="e.g., Owens Corning, GAF, Eagle Roofing"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Quantity Needed
+                  Quantity Needed *
                 </label>
                 <input
                   type="number"
@@ -340,39 +360,80 @@ export const QuoteWorkflow = ({ projectInfo, onQuoteComplete }) => {
 
               <Button
                 onClick={handleIdentifyProduct}
-                disabled={identifying || (!currentMaterial.sku && !currentMaterial.name && !currentMaterial.photo)}
+                disabled={identifying || (!currentMaterial.sku && !currentMaterial.name)}
                 icon={identifying ? null : Camera}
                 className="w-full"
               >
-                {identifying ? 'Identifying Product...' : 'Identify Product'}
+                {identifying ? 'Processing...' : (currentMaterial.sku ? 'Continue with SKU' : 'Get AI Suggestions')}
               </Button>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className={`border rounded-lg p-4 ${identifiedProduct.source === 'SKU Lookup' ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
                 <div className="flex items-start gap-3">
-                  <CheckCircle className="text-blue-600 shrink-0 mt-1" size={24} />
+                  <CheckCircle className={identifiedProduct.source === 'SKU Lookup' ? 'text-green-600' : 'text-blue-600'} size={24} />
                   <div className="flex-1">
-                    <h4 className="font-bold text-blue-900 mb-2">Product Identified</h4>
-                    <div className="text-sm space-y-1">
-                      <div><strong>Product:</strong> {identifiedProduct.productName}</div>
-                      <div><strong>Manufacturer:</strong> {identifiedProduct.manufacturer}</div>
-                      <div><strong>SKU:</strong> {identifiedProduct.sku}</div>
-                      <div><strong>Category:</strong> {identifiedProduct.category}</div>
-                      <div><strong>Confidence:</strong> {identifiedProduct.confidence}%</div>
+                    <h4 className={`font-bold mb-2 ${identifiedProduct.source === 'SKU Lookup' ? 'text-green-900' : 'text-blue-900'}`}>
+                      {identifiedProduct.source === 'SKU Lookup' ? 'SKU Entered' : 'AI Suggestion - Please Verify'}
+                    </h4>
+                    
+                    {/* Editable Fields */}
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs font-medium text-gray-700">Product Name *</label>
+                        <input
+                          type="text"
+                          value={identifiedProduct.productName}
+                          onChange={(e) => setIdentifiedProduct({...identifiedProduct, productName: e.target.value})}
+                          className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-medium text-gray-700">Manufacturer *</label>
+                          <input
+                            type="text"
+                            value={identifiedProduct.manufacturer}
+                            onChange={(e) => setIdentifiedProduct({...identifiedProduct, manufacturer: e.target.value})}
+                            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="text-xs font-medium text-gray-700">SKU *</label>
+                          <input
+                            type="text"
+                            value={identifiedProduct.sku}
+                            onChange={(e) => setIdentifiedProduct({...identifiedProduct, sku: e.target.value})}
+                            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                          />
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="text-xs font-medium text-gray-700">Category</label>
+                        <input
+                          type="text"
+                          value={identifiedProduct.category}
+                          onChange={(e) => setIdentifiedProduct({...identifiedProduct, category: e.target.value})}
+                          className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                      </div>
                     </div>
+
+                    {identifiedProduct.source !== 'SKU Lookup' && identifiedProduct.confidence < 80 && (
+                      <div className="mt-3 text-xs text-orange-700">
+                        ⚠️ Low confidence ({identifiedProduct.confidence}%) - Please verify all fields are correct
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {identifiedProduct.confirmationNeeded && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-start gap-2">
-                  <AlertCircle className="text-yellow-600 shrink-0" size={18} />
-                  <p className="text-sm text-yellow-800">
-                    Please verify this is the correct product before proceeding
-                  </p>
-                </div>
-              )}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+                <strong>✓ Review & Edit:</strong> Make sure all information is correct before adding to quote. This data will be used for supplier search.
+              </div>
 
               <div className="flex gap-3">
                 <Button
@@ -380,14 +441,15 @@ export const QuoteWorkflow = ({ projectInfo, onQuoteComplete }) => {
                   onClick={() => setIdentifiedProduct(null)}
                   className="flex-1"
                 >
-                  Try Again
+                  Start Over
                 </Button>
                 <Button
                   onClick={handleConfirmProduct}
                   className="flex-1"
                   icon={CheckCircle}
+                  disabled={!identifiedProduct.productName || !identifiedProduct.manufacturer || !identifiedProduct.sku}
                 >
-                  Confirm & Add
+                  Add to Quote
                 </Button>
               </div>
             </div>
