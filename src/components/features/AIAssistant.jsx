@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Sparkles, Search, MapPin, ShoppingCart, TrendingUp, Loader2 } from 'lucide-react';
+import { Sparkles, Search, MapPin, ShoppingCart, TrendingUp, Loader2, Package } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { findMaterialPrices, findVendorsNearLocation, buildSmartQuote } from '../../services/aiPriceDiscovery';
+import { ProductSearch } from './ProductSearch';
 
 export const AIAssistant = ({ projectInfo, onAddMaterials, onAddVendors }) => {
-  const [activeTab, setActiveTab] = useState('price-finder');
+  const [activeTab, setActiveTab] = useState('product-search');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
 
@@ -127,15 +128,26 @@ export const AIAssistant = ({ projectInfo, onAddMaterials, onAddVendors }) => {
       <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white">
         <div className="flex items-center gap-3 mb-2">
           <Sparkles size={32} className="text-yellow-300" />
-          <h2 className="text-2xl font-bold">AI Assistant</h2>
+          <h2 className="text-2xl font-bold">AI-Powered Procurement</h2>
         </div>
         <p className="text-purple-100">
-          Get AI-powered pricing, discover vendors, and build smart quotes automatically
+          Search exact products across all suppliers • Compare real-time pricing • Find best value based on price, delivery, and reputation
         </p>
       </div>
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-gray-200 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('product-search')}
+          className={`px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${
+            activeTab === 'product-search'
+              ? 'border-blue-600 text-blue-600'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <Package size={16} className="inline mr-2" />
+          Product Search
+        </button>
         <button
           onClick={() => setActiveTab('price-finder')}
           className={`px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${
@@ -170,6 +182,17 @@ export const AIAssistant = ({ projectInfo, onAddMaterials, onAddVendors }) => {
           Smart Quote Builder
         </button>
       </div>
+
+      {/* Product Search Tab */}
+      {activeTab === 'product-search' && (
+        <ProductSearch 
+          projectInfo={projectInfo}
+          onSelectOffer={(offer) => {
+            alert(`Selected: ${offer.productName} from ${offer.supplierName} at $${offer.totalCost.toFixed(2)}`);
+            // TODO: Add to project
+          }}
+        />
+      )}
 
       {/* Price Finder Tab */}
       {activeTab === 'price-finder' && (
