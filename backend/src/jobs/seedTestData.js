@@ -144,6 +144,16 @@ async function seedTestData() {
         
         // Insert prices from each supplier
         for (const supplier of product.suppliers) {
+          // Generate real supplier URLs
+          let productUrl = '';
+          if (supplier.name === 'ABC Supply') {
+            productUrl = 'https://www.abcsupply.com/shop/roofing';
+          } else if (supplier.name === 'Home Depot Pro') {
+            productUrl = 'https://www.homedepot.com/b/Building-Materials-Roofing/N-5yc1vZaq7q';
+          } else if (supplier.name === 'Beacon') {
+            productUrl = 'https://www.becn.com/products/roofing';
+          }
+
           await insertPrice(
             dbProduct.id,
             supplier.name,
@@ -153,7 +163,7 @@ async function seedTestData() {
             true,
             null,
             supplier.location,
-            `https://${supplier.name.toLowerCase().replace(/\s+/g, '')}.com/products/${product.sku}`
+            productUrl
           );
           pricesAdded++;
         }
