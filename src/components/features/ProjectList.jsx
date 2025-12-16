@@ -3,39 +3,9 @@ import { Plus, FolderOpen, MapPin, Calendar, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/Button';
 
-const mockProjects = [
-  { 
-    id: '1024', 
-    name: 'Toledo Residential Complex', 
-    loc: 'Toledo, OH',
-    createdAt: new Date('2024-01-15'),
-    itemCount: 7,
-    vendorCount: 3,
-    status: 'active'
-  },
-  { 
-    id: '1025', 
-    name: 'Cleveland Commercial Roof', 
-    loc: 'Cleveland, OH',
-    createdAt: new Date('2024-02-01'),
-    itemCount: 12,
-    vendorCount: 5,
-    status: 'completed'
-  },
-  { 
-    id: '1026', 
-    name: 'Columbus Multi-Family', 
-    loc: 'Columbus, OH',
-    createdAt: new Date('2024-02-20'),
-    itemCount: 5,
-    vendorCount: 2,
-    status: 'active'
-  }
-];
-
 export const ProjectList = () => {
   const navigate = useNavigate();
-  const [projects] = useState(mockProjects);
+  const [projects] = useState([]);
 
   const handleCreateProject = () => {
     const name = prompt('Enter project name:');
