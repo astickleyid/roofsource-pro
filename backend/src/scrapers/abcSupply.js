@@ -78,21 +78,21 @@ export class ABCSupplyScraper {
           if (!price || !product.sku) continue;
 
           // Insert product
-          insertProduct.run(
+          await insertProduct(
             product.sku,
             product.name,
-            'Unknown', // manufacturer - would need to parse
-            'Roofing', // category
+            'Unknown',
+            'Roofing',
             '',
             product.imageUrl
           );
 
           // Get product ID
-          const dbProduct = getProductBySku.get(product.sku);
+          const dbProduct = await getProductBySku(product.sku);
           
           if (dbProduct) {
             // Insert price
-            insertPrice.run(
+            await insertPrice(
               dbProduct.id,
               'ABC Supply',
               product.sku,

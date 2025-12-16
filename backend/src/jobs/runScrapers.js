@@ -9,7 +9,7 @@ async function runAllScrapers() {
   console.log('🚀 Starting scraping job...\n');
   
   // Setup database
-  setupDatabase();
+  await setupDatabase();
 
   const results = {
     total: 0,
@@ -18,33 +18,33 @@ async function runAllScrapers() {
 
   // ABC Supply
   console.log('📦 Scraping ABC Supply...');
-  const abcJobId = insertScrapeJob.run('ABC Supply', 'running').lastInsertRowid;
+  const abcJobId = await insertScrapeJob('ABC Supply', 'running');
   try {
     const abcScraper = new ABCSupplyScraper();
     await abcScraper.init();
     const count = await abcScraper.scrapeAllCategories();
     await abcScraper.close();
     
-    updateScrapeJob.run('completed', count, null, abcJobId);
+    await updateScrapeJob('completed', count, null, abcJobId);
     results.bySupplier['ABC Supply'] = count;
     results.total += count;
   } catch (error) {
-    updateScrapeJob.run('failed', 0, error.message, abcJobId);
+    await updateScrapeJob('failed', 0, error.message, abcJobId);
     console.error('ABC Supply failed:', error.message);
   }
 
   // Home Depot
   console.log('\n🏠 Scraping Home Depot...');
-  const hdJobId = insertScrapeJob.run('Home Depot Pro', 'running').lastInsertRowid;
+  const hdJobId = await insertScrapeJob('Home Depot Pro', 'running');
   try {
     const hdScraper = new HomeDepotScraper();
     const count = await hdScraper.scrapeCommonProducts();
     
-    updateScrapeJob.run('completed', count, null, hdJobId);
+    await updateScrapeJob('completed', count, null, hdJobId);
     results.bySupplier['Home Depot'] = count;
     results.total += count;
   } catch (error) {
-    updateScrapeJob.run('failed', 0, error.message, hdJobId);
+    await updateScrapeJob('failed', 0, error.message, hdJobId);
     console.error('Home Depot failed:', error.message);
   }
 

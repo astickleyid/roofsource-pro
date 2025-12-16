@@ -33,7 +33,7 @@ setupDatabase();
  * Search for products
  * GET /api/products/search?q=shingles
  */
-app.get('/api/products/search', (req, res) => {
+app.get('/api/products/search', async (req, res) => {
   try {
     const { q } = req.query;
     
@@ -41,8 +41,7 @@ app.get('/api/products/search', (req, res) => {
       return res.status(400).json({ error: 'Query must be at least 3 characters' });
     }
 
-    const searchTerm = `%${q}%`;
-    const results = searchProducts.all(searchTerm, searchTerm, searchTerm);
+    const results = await searchProducts(q);
     
     res.json({
       success: true,
@@ -58,14 +57,14 @@ app.get('/api/products/search', (req, res) => {
  * Get prices for a specific product
  * GET /api/products/:sku/prices
  */
-app.get('/api/products/:sku/prices', (req, res) => {
+app.get('/api/products/:sku/prices', async (req, res) => {
   try {
     const { sku } = req.params;
     const { location } = req.query;
     
     const prices = location 
-      ? getPricesByLocation.all(location, sku)
-      : getPricesForProduct.all(sku);
+      ? await getPricesByLocation(location, sku)
+      : await getPricesForProduct(sku);
     
     if (prices.length === 0) {
       return res.status(404).json({ error: 'Product not found' });
@@ -99,7 +98,7 @@ app.get('/api/products/:sku/prices', (req, res) => {
  * POST /api/products/prices
  * Body: { products: [{ sku, quantity }], location }
  */
-app.post('/api/products/prices', (req, res) => {
+app.post('/api/products/prices', async (req, res) => {
   try {
     const { products, location } = req.body;
     
@@ -107,10 +106,10 @@ app.post('/api/products/prices', (req, res) => {
       return res.status(400).json({ error: 'Products must be an array' });
     }
 
-    const results = products.map(item => {
+    const results = await Promise.all(products.map(async (item) => {
       const prices = location
-        ? getPricesByLocation.all(location, item.sku)
-        : getPricesForProduct.all(item.sku);
+        ? await getPricesByLocation(location, item.sku)
+        : await getPricesForProduct(item.sku);
       
       return {
         sku: item.sku,
@@ -119,7 +118,7 @@ app.post('/api/products/prices', (req, res) => {
         bestPrice: prices.length > 0 ? prices[0] : null,
         allPrices: prices
       };
-    });
+    }));
 
     res.json({
       success: true,

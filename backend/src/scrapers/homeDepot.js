@@ -56,7 +56,7 @@ export class HomeDepotScraper {
           const price = this.parsePrice(product.price);
           if (!price) continue;
 
-          insertProduct.run(
+          await insertProduct(
             product.sku,
             product.name,
             this.extractManufacturer(product.name),
@@ -65,10 +65,10 @@ export class HomeDepotScraper {
             product.imageUrl
           );
 
-          const dbProduct = getProductBySku.get(product.sku);
+          const dbProduct = await getProductBySku(product.sku);
           
           if (dbProduct) {
-            insertPrice.run(
+            await insertPrice(
               dbProduct.id,
               'Home Depot Pro',
               product.sku,

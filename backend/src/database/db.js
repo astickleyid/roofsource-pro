@@ -107,4 +107,70 @@ export const setupDatabase = async () => {
   return db;
 };
 
+// Product operations
+export const insertProduct = async (sku, name, manufacturer, category, description, imageUrl) => {
+  const db = await getDb();
+  return await db.run(
+    `INSERT OR IGNORE INTO products (sku, name, manufacturer, category, description, image_url) VALUES (?, ?, ?, ?, ?, ?)`,
+    [sku, name, manufacturer, category, description, imageUrl]
+  );
+};
+
+export const getProductBySku = async (sku) => {
+  const db = await getDb();
+  return await db.get(`SELECT * FROM products WHERE sku = ?`, [sku]);
+};
+
+export const searchProducts = async (searchTerm) => {
+  const db = await getDb();
+  const term = `%${searchTerm}%`;
+  return await db.all(
+    `SELECT * FROM products WHERE name LIKE ? OR sku LIKE ? OR manufacturer LIKE ? LIMIT 50`,
+    [term, term, term]
+  );
+};
+
+// Price operations
+export const insertPrice = async (productId, supplierName, supplierSku, price, unit, inStock, stockQty, location, url) => {
+  const db = await getDb();
+  return await db.run(
+    `INSERT OR REPLACE INTO supplier_prices (product_id, supplier_name, supplier_sku, price, unit, in_stock, stock_quantity, location, url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [productId, supplierName, supplierSku, price, unit, inStock, stockQty, location, url]
+  );
+};
+
+export const getPricesForProduct = async (sku) => {
+  const db = await getDb();
+  return await db.all(
+    `SELECT sp.*, p.name, p.manufacturer, p.sku FROM supplier_prices sp JOIN products p ON sp.product_id = p.id WHERE p.sku = ? ORDER BY sp.price ASC`,
+    [sku]
+  );
+};
+
+export const getPricesByLocation = async (location, sku) => {
+  const db = await getDb();
+  return await db.all(
+    `SELECT sp.*, p.name, p.manufacturer, p.sku FROM supplier_prices sp JOIN products p ON sp.product_id = p.id WHERE (sp.location = ? OR sp.location IS NULL) AND p.sku = ? ORDER BY sp.price ASC`,
+    [location, sku]
+  );
+};
+
+// Scrape job operations
+export const insertScrapeJob = async (supplierName, status) => {
+  const db = await getDb();
+  const result = await db.run(
+    `INSERT INTO scrape_jobs (supplier_name, status) VALUES (?, ?)`,
+    [supplierName, status]
+  );
+  return result.lastID;
+};
+
+export const updateScrapeJob = async (status, productsFound, errors, jobId) => {
+  const db = await getDb();
+  return await db.run(
+    `UPDATE scrape_jobs SET status = ?, products_found = ?, errors = ?, completed_at = CURRENT_TIMESTAMP WHERE id = ?`,
+    [status, productsFound, errors, jobId]
+  );
+};
+
 export default getDb;

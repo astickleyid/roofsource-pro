@@ -8,7 +8,8 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "scrape": "node src/jobs/runScrapers.js",
-    "setup-db": "node src/database/setup.js"
+    "seed": "node src/jobs/seedTestData.js",
+    "setup-db": "node -e \"import('./src/database/db.js').then(m => m.setupDatabase())\""
   },
   "dependencies": {
     "express": "^4.18.2",
