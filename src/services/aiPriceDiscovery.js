@@ -14,7 +14,7 @@ export const findMaterialPrices = async (materialName, location, quantity = 1) =
                      import.meta.env.VITE_OPENAI_API_KEY !== 'mock-key';
   
   if (!hasRealKey) {
-    return mockPriceDiscovery(materialName, location, quantity);
+    throw new Error('OpenAI API key required. Add VITE_OPENAI_API_KEY to .env.local');
   }
 
   try {
@@ -56,7 +56,7 @@ Return as JSON with structure:
     };
   } catch (error) {
     console.error('AI Price Discovery Error:', error);
-    return mockPriceDiscovery(materialName, location, quantity);
+    throw new Error(`Failed to get pricing data: ${error.message}`);
   }
 };
 
@@ -68,7 +68,7 @@ export const findVendorsNearLocation = async (location, materials = []) => {
                      import.meta.env.VITE_OPENAI_API_KEY !== 'mock-key';
   
   if (!hasRealKey) {
-    return mockVendorDiscovery(location, materials);
+    throw new Error('OpenAI API key required. Add VITE_OPENAI_API_KEY to .env.local');
   }
 
   try {
@@ -101,7 +101,7 @@ Return as JSON array of vendor objects.`;
     };
   } catch (error) {
     console.error('AI Vendor Discovery Error:', error);
-    return mockVendorDiscovery(location, materials);
+    throw new Error(`Failed to find vendors: ${error.message}`);
   }
 };
 
@@ -113,7 +113,7 @@ export const buildSmartQuote = async (projectDescription, location) => {
                      import.meta.env.VITE_OPENAI_API_KEY !== 'mock-key';
   
   if (!hasRealKey) {
-    return mockSmartQuote(projectDescription);
+    throw new Error('OpenAI API key required. Add VITE_OPENAI_API_KEY to .env.local');
   }
 
   try {
@@ -150,80 +150,8 @@ Return as JSON with materials array containing: {name, quantity, unit, estimated
     };
   } catch (error) {
     console.error('AI Smart Quote Error:', error);
-    return mockSmartQuote(projectDescription);
+    throw new Error(`Failed to generate quote: ${error.message}`);
   }
 };
 
-// Mock functions for when no API key is available
-function mockPriceDiscovery(materialName, location, quantity) {
-  const basePrices = {
-    'shingles': 115,
-    'underlayment': 45,
-    'drip edge': 8.5,
-    'nails': 35,
-    'ice & water': 65
-  };
-
-  const key = Object.keys(basePrices).find(k => 
-    materialName.toLowerCase().includes(k)
-  );
-  const basePrice = basePrices[key] || 50;
-
-  return {
-    success: true,
-    priceRange: {
-      low: basePrice * 0.85,
-      average: basePrice,
-      high: basePrice * 1.25
-    },
-    unit: 'Each',
-    vendors: ['ABC Supply', 'Beacon Building Products', 'SRS Distribution'],
-    marketConditions: 'Prices stable in current market. Local availability good.',
-    alternatives: []
-  };
-}
-
-function mockVendorDiscovery(location) {
-  return {
-    success: true,
-    vendors: [
-      {
-        name: 'ABC Supply',
-        distance: 5,
-        type: 'National Distributor',
-        delivery: 'Available',
-        specialties: ['Owens Corning', 'GAF', 'CertainTeed']
-      },
-      {
-        name: 'Beacon Building Products',
-        distance: 12,
-        type: 'Specialty Distributor',
-        delivery: 'Available',
-        specialties: ['Premium materials', 'Commercial roofing']
-      },
-      {
-        name: `${location.split(',')[0]} Roofing Supply`,
-        distance: 8,
-        type: 'Local Supplier',
-        delivery: 'Limited',
-        specialties: ['Same-day pickup', 'Local inventory']
-      }
-    ]
-  };
-}
-
-function mockSmartQuote(description) {
-  return {
-    success: true,
-    materials: [
-      { name: 'Architectural Shingles', quantity: 40, unit: 'Sq', estimatedPrice: 115, category: 'Primary', notes: 'Premium grade recommended' },
-      { name: 'Ice & Water Shield', quantity: 4, unit: 'Rolls', estimatedPrice: 65, category: 'Underlayment', notes: 'Valleys and eaves' },
-      { name: 'Synthetic Felt', quantity: 6, unit: 'Rolls', estimatedPrice: 45, category: 'Underlayment', notes: 'Main roof deck' },
-      { name: 'Drip Edge', quantity: 200, unit: 'LF', estimatedPrice: 0.85, category: 'Trim', notes: 'Eaves and rakes' },
-      { name: 'Hip & Ridge Cap', quantity: 8, unit: 'Bdl', estimatedPrice: 55, category: 'Primary', notes: 'Match shingle color' },
-      { name: 'Roofing Nails', quantity: 3, unit: 'Box', estimatedPrice: 35, category: 'Fasteners', notes: '1-1/4" coil nails' }
-    ],
-    notes: 'Estimates based on typical residential re-roof. Adjust for actual measurements.',
-    totalEstimate: 6850
-  };
-}
+// Remove all mock functions - they're gone

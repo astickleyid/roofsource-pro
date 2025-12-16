@@ -77,9 +77,13 @@ export const parseQuoteWithAIMock = async (text) => {
   };
 };
 
-export const parseQuoteEmail = async (emailText, useAI = false) => {
-  if (useAI && process.env.REACT_APP_OPENAI_API_KEY) {
-    return await parseQuoteWithAI(emailText);
+export const parseQuoteEmail = async (emailText) => {
+  const hasRealKey = import.meta.env.VITE_OPENAI_API_KEY && 
+                     import.meta.env.VITE_OPENAI_API_KEY !== 'mock-key';
+  
+  if (!hasRealKey) {
+    throw new Error('OpenAI API key required. Please add VITE_OPENAI_API_KEY to your .env.local file');
   }
-  return await parseQuoteWithAIMock(emailText);
+  
+  return await parseQuoteWithAI(emailText);
 };

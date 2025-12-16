@@ -55,7 +55,7 @@ export const identifyProduct = async (input) => {
                      import.meta.env.VITE_OPENAI_API_KEY !== 'mock-key';
 
   if (!hasRealKey || !name) {
-    return mockProductIdentification(input);
+    throw new Error('OpenAI API key required. Add VITE_OPENAI_API_KEY to .env.local');
   }
 
   try {
@@ -102,7 +102,7 @@ Return JSON with your BEST GUESS (user will confirm):
     };
   } catch (error) {
     console.error('Product identification error:', error);
-    return mockProductIdentification(input);
+    throw new Error(`Failed to identify product: ${error.message}`);
   }
 };
 
@@ -317,23 +317,3 @@ export const assembleCompleteQuote = async (jobDetails, materialsList) => {
     }
   };
 };
-
-// Mock functions for development
-function mockProductIdentification(input) {
-  const { sku, name } = input;
-  return {
-    success: true,
-    productName: name || 'Owens Corning Duration Shingles - Driftwood',
-    manufacturer: 'Owens Corning',
-    sku: sku || 'OC-DUR-DRIFT',
-    category: 'Architectural Shingles',
-    specifications: {
-      unit: 'Square',
-      coverage: '100 sq ft per bundle',
-      color: 'Driftwood'
-    },
-    confidence: 95,
-    alternativeNames: ['Duration Shingles', 'OC Duration'],
-    confirmationNeeded: false
-  };
-}

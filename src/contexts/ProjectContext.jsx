@@ -11,50 +11,6 @@ const MATERIAL_CATALOG = [
   { id: 'COIL-NAILS', name: "Coil Nails 1-1/4\"", unit: "Box", defaultPrice: 35.00 },
 ];
 
-const INITIAL_VENDORS = [
-  { 
-    id: 'abc', 
-    name: "ABC Supply (Local)", 
-    type: "Network API", 
-    distance: 5, 
-    driveTime: 12,
-    isManual: false,
-    taxRate: 0.065,
-    deliveryFee: 75.00,
-    palletFee: 15.00,
-    pricing: { 'OC-DUR-DRIFT': 115.50, 'IWS-ROLL': 65.00, 'OC-DUR-ONYX': 115.50, 'SYN-FELT': 48.00, 'DRIP-EDGE': 9.25, 'HIP-RIDGE': 58.00, 'COIL-NAILS': 38.00 } 
-  },
-  { 
-    id: 'beacon', 
-    name: "Beacon Products", 
-    type: "Network API", 
-    distance: 12, 
-    driveTime: 25, 
-    isManual: false,
-    taxRate: 0.065,
-    deliveryFee: 100.00,
-    palletFee: 20.00,
-    pricing: { 'OC-DUR-DRIFT': 112.25, 'IWS-ROLL': 62.50, 'OC-DUR-ONYX': 112.25, 'SYN-FELT': 42.00, 'DRIP-EDGE': 8.50, 'HIP-RIDGE': 54.00, 'COIL-NAILS': 32.00 } 
-  },
-  { 
-    id: 'millers', 
-    name: "Miller's Roofing Supply", 
-    type: "Manual / Email", 
-    distance: 45, 
-    driveTime: 55, 
-    isManual: true,
-    taxRate: 0.065,
-    deliveryFee: 150.00,
-    palletFee: 25.00,
-    pricing: {}
-  }
-];
-
-const INITIAL_SCOPE = [
-  { id: 'OC-DUR-DRIFT', qty: 45 },
-  { id: 'IWS-ROLL', qty: 4 }
-];
-
 const ProjectContext = createContext(null);
 
 export const useProject = () => {
@@ -66,8 +22,8 @@ export const useProject = () => {
 };
 
 export const ProjectProvider = ({ children }) => {
-  const [scope, setScope] = useState(INITIAL_SCOPE);
-  const [vendors, setVendors] = useState(INITIAL_VENDORS);
+  const [scope, setScope] = useState([]);
+  const [vendors, setVendors] = useState([]);
   const [projectInfo, setProjectInfo] = useState({ 
     id: '1024', 
     name: 'Toledo Residential Complex', 
