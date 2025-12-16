@@ -9,6 +9,7 @@
     "start": "node src/server.js",
     "scrape": "node src/jobs/runScrapers.js",
     "seed": "node src/jobs/seedTestData.js",
+    "test-scraper": "node testScraper.js",
     "setup-db": "node -e \"import('./src/database/db.js').then(m => m.setupDatabase())\""
   },
   "dependencies": {
@@ -16,6 +17,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "puppeteer": "^21.6.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "puppeteer-extra-plugin-recaptcha": "^3.6.8",
     "cheerio": "^1.0.0-rc.12",
     "axios": "^1.6.2",
     "sqlite": "^5.1.1",
